@@ -51,3 +51,258 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
+
+/* Amplify UI Dark Theme Overrides */
+[data-amplify-authenticator] {
+  --amplify-colors-background-primary: hsl(240 10% 3.9%);
+  --amplify-colors-background-secondary: hsl(240 10% 3.9%);
+  --amplify-colors-border-primary: hsl(240 3.7% 15.9%);
+  --amplify-colors-border-secondary: hsl(240 3.7% 15.9%);
+  --amplify-colors-font-primary: hsl(0 0% 98%);
+  --amplify-colors-font-secondary: hsl(240 5% 64.9%);
+  --amplify-colors-brand-primary-80: hsl(0 0% 98%);
+  --amplify-colors-brand-primary-60: hsl(0 0% 98%);
+  --amplify-colors-brand-primary-40: hsl(240 5% 64.9%);
+  --amplify-colors-font-interactive: hsl(0 0% 98%);
+  --amplify-radii-small: 0.5rem;
+  --amplify-radii-medium: 0.5rem;
+  --amplify-radii-large: 0.5rem;
+  --amplify-space-small: 0.75rem;
+  --amplify-space-medium: 1rem;
+  --amplify-space-large: 1.5rem;
+}
+
+[data-amplify-authenticator] {
+  background-color: hsl(240 10% 3.9%) !important;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+[data-amplify-authenticator] [data-amplify-container] {
+  background-color: transparent !important;
+  max-width: 28rem;
+  width: 100%;
+}
+
+[data-amplify-authenticator] [data-amplify-form] {
+  background-color: hsl(240 10% 3.9%) !important;
+  border: none !important;
+  border-radius: 0.5rem;
+  padding: 2rem;
+}
+
+/* Remove any white backgrounds from Amplify components */
+[data-amplify-authenticator] > div,
+[data-amplify-authenticator] [data-amplify-router],
+[data-amplify-authenticator] [data-amplify-router-content],
+[data-amplify-authenticator] [data-amplify-router-content] > div,
+[data-amplify-authenticator] [data-amplify-card],
+[data-amplify-authenticator] [data-amplify-section],
+[data-amplify-authenticator] [class*="amplify-card"],
+[data-amplify-authenticator] [class*="amplify-section"] {
+  background-color: transparent !important;
+  background: transparent !important;
+}
+
+/* Force dark background on form and its direct children containers */
+[data-amplify-authenticator] [data-amplify-form] {
+  background-color: hsl(240 10% 3.9%) !important;
+}
+
+[data-amplify-authenticator] [data-amplify-form] > div:not([data-amplify-field]):not([data-amplify-tabs]):not([data-amplify-header]) {
+  background-color: hsl(240 10% 3.9%) !important;
+}
+
+/* Header */
+[data-amplify-authenticator] [data-amplify-header] {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+[data-amplify-authenticator] [data-amplify-header] h1,
+[data-amplify-authenticator] [data-amplify-header] h2 {
+  color: hsl(0 0% 98%) !important;
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+[data-amplify-authenticator] [data-amplify-header] p {
+  color: hsl(0 0% 98%) !important;
+  font-size: 0.875rem;
+  opacity: 0.8;
+}
+
+/* Tabs */
+[data-amplify-authenticator] [data-amplify-tabs] {
+  border-bottom: 1px solid hsl(240 3.7% 15.9%);
+  margin-bottom: 1.5rem;
+  padding-bottom: 0;
+}
+
+[data-amplify-authenticator] [data-amplify-tab] {
+  color: hsl(240 5% 64.9%) !important;
+  border-bottom: 2px solid transparent;
+  padding: 0.75rem 1.25rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+  background: none !important;
+}
+
+[data-amplify-authenticator] [data-amplify-tab][data-state="active"] {
+  color: hsl(0 0% 98%) !important;
+  border-bottom-color: hsl(0 0% 98%);
+}
+
+[data-amplify-authenticator] [data-amplify-tab]:hover {
+  color: hsl(0 0% 98%) !important;
+}
+
+/* Labels */
+[data-amplify-authenticator] label {
+  color: hsl(0 0% 98%) !important;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+/* Form Section Background */
+[data-amplify-authenticator] [data-amplify-form] > div:not([data-amplify-tabs]):not([data-amplify-header]) {
+  background-color: transparent !important;
+  padding: 0;
+  margin-top: 0;
+}
+
+[data-amplify-authenticator] [data-amplify-form] [data-amplify-field] {
+  margin-bottom: 1.25rem;
+}
+
+/* Input Fields - Dark with visible borders */
+[data-amplify-authenticator] input[type="text"],
+[data-amplify-authenticator] input[type="email"],
+[data-amplify-authenticator] input[type="username"],
+[data-amplify-authenticator] input[type="password"] {
+  background-color: hsl(240 10% 3.9%) !important;
+  border: 1px solid hsl(240 3.7% 15.9%) !important;
+  border-radius: 0.5rem;
+  color: hsl(0 0% 98%) !important;
+  padding: 0.75rem;
+  width: 100%;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+}
+
+[data-amplify-authenticator] input:hover {
+  border-color: hsl(240 3.7% 25%) !important;
+}
+
+[data-amplify-authenticator] input:focus {
+  outline: none;
+  border-color: hsl(240 4.9% 83.9%) !important;
+  box-shadow: 0 0 0 2px hsl(240 4.9% 83.9% / 0.2);
+}
+
+[data-amplify-authenticator] input::placeholder {
+  color: hsl(240 5% 64.9%) !important;
+}
+
+/* Password Toggle Button */
+[data-amplify-authenticator] button[data-amplify-password-toggle] {
+  background-color: transparent !important;
+  border: 1px solid hsl(240 3.7% 15.9%) !important;
+  border-radius: 0.25rem;
+  color: hsl(0 0% 98%) !important;
+  padding: 0.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+[data-amplify-authenticator] button[data-amplify-password-toggle]:hover {
+  background-color: hsl(240 3.7% 15.9%) !important;
+  border-color: hsl(240 3.7% 20%) !important;
+}
+
+/* Submit Buttons - Light gray/white with dark text */
+[data-amplify-authenticator] button[type="submit"],
+[data-amplify-authenticator] [data-amplify-button][type="submit"],
+[data-amplify-authenticator] [data-amplify-button] {
+  background-color: hsl(240 3.7% 15.9%) !important;
+  color: hsl(0 0% 98%) !important;
+  border: 1px solid hsl(240 3.7% 15.9%) !important;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  width: 100%;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 1rem;
+}
+
+[data-amplify-authenticator] button[type="submit"]:hover,
+[data-amplify-authenticator] [data-amplify-button][type="submit"]:hover,
+[data-amplify-authenticator] [data-amplify-button]:hover {
+  background-color: hsl(240 3.7% 20%) !important;
+  border-color: hsl(240 3.7% 20%) !important;
+}
+
+[data-amplify-authenticator] button[type="submit"]:active,
+[data-amplify-authenticator] [data-amplify-button][type="submit"]:active,
+[data-amplify-authenticator] [data-amplify-button]:active {
+  background-color: hsl(240 3.7% 25%) !important;
+}
+
+/* Primary action button - dark gray with white text */
+[data-amplify-authenticator] [data-amplify-button][data-variation="primary"] {
+  background-color: hsl(240 3.7% 15.9%) !important;
+  color: hsl(0 0% 98%) !important;
+  border: 1px solid hsl(240 3.7% 15.9%) !important;
+}
+
+[data-amplify-authenticator] [data-amplify-button][data-variation="primary"]:hover {
+  background-color: hsl(240 3.7% 20%) !important;
+  border-color: hsl(240 3.7% 20%) !important;
+}
+
+/* Links */
+[data-amplify-authenticator] a {
+  color: hsl(0 0% 98%) !important;
+  text-decoration: none;
+  font-size: 0.875rem;
+  opacity: 0.8;
+}
+
+[data-amplify-authenticator] a:hover {
+  color: hsl(0 0% 98%) !important;
+  text-decoration: underline;
+  opacity: 1;
+}
+
+/* Error Messages */
+[data-amplify-authenticator] [data-amplify-alert] {
+  background-color: hsl(0 62.8% 30.6% / 0.2) !important;
+  border: 1px solid hsl(0 62.8% 30.6%) !important;
+  border-radius: 0.5rem;
+  color: hsl(0 0% 98%) !important;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+/* Form Field Container */
+[data-amplify-authenticator] [data-amplify-field] {
+  margin-bottom: 1.25rem;
+}
+
+/* Divider */
+[data-amplify-authenticator] [data-amplify-divider] {
+  border-color: hsl(0 0% 14.9%) !important;
+  color: hsl(0 0% 63.9%) !important;
+}
