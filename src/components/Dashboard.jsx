@@ -5,11 +5,18 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
+import SetupWizard from './SetupWizard';
+import EditSubscription from './EditSubscription';
+import AddSubscription from './AddSubscription';
 
 function Dashboard() {
   const [subs, setSubs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [setupWizardOpen, setSetupWizardOpen] = useState(false);
+  const [editingSub, setEditingSub] = useState(null);
+  const [addingSub, setAddingSub] = useState(false);
+  const [authToken, setAuthToken] = useState(null);
 
   useEffect(() => {
     const fetchSubscriptions = async () => {
@@ -22,6 +29,7 @@ function Dashboard() {
         // Verify we're using ID Token (contains email claim), not Access Token
         const idToken = session.tokens.idToken;
         const token = idToken.toString();
+        setAuthToken(token); // Store token for later use
         
         // Debug: Log token info (first 50 chars only for security)
         console.log("ID Token (first 50 chars):", token.substring(0, 50) + "...");
@@ -92,11 +100,120 @@ function Dashboard() {
     fetchSubscriptions();
   }, []);
 
-  // Safe Reduce: This will NEVER crash now because subs is guaranteed to be an array
+  // Safe Reduce: Calculate monthly spend only for Active subscriptions
+  // Exclude Cancelled, Paused, and Expired subscriptions
   const totalSpend = (Array.isArray(subs) ? subs : []).reduce((acc, sub) => {
-    const costValue = parseFloat(sub.cost) || 0;
-    return acc + costValue;
+    const status = (sub.status || 'Active').toLowerCase();
+    // Only count Active subscriptions towards monthly spend
+    if (status === 'active') {
+      const costValue = parseFloat(sub.cost) || 0;
+      return acc + costValue;
+    }
+    return acc;
   }, 0);
+
+  const handleSaveSubscription = async (updatedData, token) => {
+    const API_URL = process.env.REACT_APP_API_URL;
+    
+    // Update local state optimistically first
+    setSubs(prevSubs => 
+      prevSubs.map(sub => 
+        (sub.original_msg_id === updatedData.original_msg_id || 
+         (sub.merchant === updatedData.merchant && !sub.original_msg_id)) 
+          ? updatedData 
+          : sub
+      )
+    );
+
+    try {
+      const response = await fetch(API_URL, {
+        method: 'PUT',
+        headers: {
+          'Authorization': token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updatedData)
+      });
+
+      if (!response.ok) {
+        let errorMessage = `Failed to update subscription (${response.status})`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorData.message || JSON.stringify(errorData);
+        } catch {
+          const errorText = await response.text();
+          errorMessage = errorText || errorMessage;
+        }
+        console.error('Failed to update subscription:', response.status, errorMessage);
+        console.error('Request payload:', JSON.stringify(updatedData, null, 2));
+        throw new Error(errorMessage);
+      }
+    } catch (err) {
+      // Network error or API not configured for updates
+      // Changes are still applied locally for better UX
+      console.warn('Could not save to API. Changes are local only:', err);
+      // Re-throw to show error in UI
+      throw err;
+    }
+  };
+
+  const handleAddSubscription = async (newSubscription, token) => {
+    const API_URL = process.env.REACT_APP_API_URL;
+    
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newSubscription)
+      });
+
+      if (!response.ok) {
+        let errorMessage = `Failed to add subscription (${response.status})`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorData.message || JSON.stringify(errorData);
+        } catch {
+          const errorText = await response.text();
+          errorMessage = errorText || errorMessage;
+        }
+        console.error('Failed to add subscription:', response.status, errorMessage);
+        console.error('Request payload:', JSON.stringify(newSubscription, null, 2));
+        throw new Error(errorMessage);
+      }
+
+      // Get the created subscription from response
+      // Lambda returns: {"message": "Success", "item": {...}}
+      const responseData = await response.json();
+      
+      // Handle API Gateway double-encoding if needed
+      let parsedData = typeof responseData === 'string' 
+        ? JSON.parse(responseData) 
+        : responseData;
+      
+      if (parsedData && parsedData.body) {
+        parsedData = typeof parsedData.body === 'string'
+          ? JSON.parse(parsedData.body)
+          : parsedData.body;
+      }
+
+      // Extract the item from Lambda response format: {message: "Success", item: {...}}
+      const subscriptionData = parsedData.item || parsedData;
+      
+      // Convert Decimal cost back to number if needed
+      if (subscriptionData.cost && typeof subscriptionData.cost === 'string') {
+        subscriptionData.cost = parseFloat(subscriptionData.cost);
+      }
+
+      // Add the new subscription to local state
+      setSubs(prevSubs => [...prevSubs, subscriptionData]);
+    } catch (err) {
+      console.error('Error adding subscription:', err);
+      throw err;
+    }
+  };
 
   if (error) {
     return (
@@ -134,16 +251,38 @@ function Dashboard() {
                 Real-time surveillance of your subscriptions
               </p>
             </div>
-            <Card className="w-full sm:w-auto sm:min-w-[220px]">
-              <CardHeader className="pb-2">
-                <CardDescription className="text-xs font-medium uppercase tracking-wider">
-                  Monthly Spend
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">${totalSpend.toFixed(2)}</div>
-              </CardContent>
-            </Card>
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+              <Button 
+                onClick={() => setAddingSub(true)}
+                variant="default"
+                className="w-full sm:w-auto"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Add Subscription
+              </Button>
+              <Button 
+                onClick={() => setSetupWizardOpen(true)}
+                variant="outline"
+                className="w-full sm:w-auto"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                Setup Auto-Forwarding
+              </Button>
+              <Card className="w-full sm:w-auto sm:min-w-[220px]">
+                <CardHeader className="pb-2">
+                  <CardDescription className="text-xs font-medium uppercase tracking-wider">
+                    Monthly Spend
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">${totalSpend.toFixed(2)}</div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
 
@@ -164,10 +303,25 @@ function Dashboard() {
         ) : (
           <Card className="overflow-hidden">
             <CardHeader className="pb-4 border-b">
-              <CardTitle className="text-lg font-semibold">Subscriptions</CardTitle>
-              <CardDescription className="text-sm mt-1">
-                Active subscription services
-              </CardDescription>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <CardTitle className="text-lg font-semibold">Subscriptions</CardTitle>
+                  <CardDescription className="text-sm mt-1">
+                    Active subscription services
+                  </CardDescription>
+                </div>
+                <Button 
+                  onClick={() => setAddingSub(true)}
+                  variant="outline"
+                  size="sm"
+                  className="w-full sm:w-auto"
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  Add Subscription
+                </Button>
+              </div>
             </CardHeader>
             <CardContent className="p-0">
               {subs.length > 0 ? (
@@ -178,6 +332,7 @@ function Dashboard() {
                       <TableHead className="h-11 px-6 font-medium text-xs uppercase tracking-wider text-right">Monthly Cost</TableHead>
                       <TableHead className="h-11 px-6 font-medium text-xs uppercase tracking-wider">Next Renewal</TableHead>
                       <TableHead className="h-11 px-6 font-medium text-xs uppercase tracking-wider text-right">Status</TableHead>
+                      <TableHead className="h-11 px-6 font-medium text-xs uppercase tracking-wider text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -194,6 +349,19 @@ function Dashboard() {
                             {sub.status || "Active"}
                           </Badge>
                         </TableCell>
+                        <TableCell className="px-6 py-4 text-right">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setEditingSub(sub)}
+                            className="h-8 w-8 p-0"
+                            title="Edit subscription"
+                          >
+                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -206,13 +374,47 @@ function Dashboard() {
                     </svg>
                   </div>
                   <h3 className="text-sm font-semibold mb-1">No subscriptions found</h3>
-                  <p className="text-sm text-muted-foreground">Try sending a receipt to get started</p>
+                  <p className="text-sm text-muted-foreground mb-4">Add a subscription manually or set up auto-forwarding</p>
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                    <Button 
+                      onClick={() => setAddingSub(true)}
+                      variant="default"
+                    >
+                      <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                      Add Subscription
+                    </Button>
+                    <Button 
+                      onClick={() => setSetupWizardOpen(true)}
+                      variant="outline"
+                    >
+                      <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                      Setup Auto-Forwarding
+                    </Button>
+                  </div>
                 </div>
               )}
             </CardContent>
           </Card>
         )}
       </div>
+      <SetupWizard open={setupWizardOpen} onOpenChange={setSetupWizardOpen} />
+      <EditSubscription
+        open={!!editingSub}
+        onOpenChange={(open) => !open && setEditingSub(null)}
+        subscription={editingSub}
+        onSave={handleSaveSubscription}
+        token={authToken}
+      />
+      <AddSubscription
+        open={addingSub}
+        onOpenChange={setAddingSub}
+        onSave={handleAddSubscription}
+        token={authToken}
+      />
     </div>
   );
 }
