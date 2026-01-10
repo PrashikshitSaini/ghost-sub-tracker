@@ -10,17 +10,24 @@ import { useCurrency } from './contexts/CurrencyContext';
 // Check if we are on localhost or Vercel
 const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 const currentUrl = isLocalhost 
-  ? 'http://localhost:3000/' 
+  ? 'http://localhost:3000/'
   : 'https://ghost-sub-tracker.vercel.app/';
 
+// AWS Cognito Configuration
+// NOTE: These values (User Pool ID, Client ID, Domain) are MEANT to be public in client-side code.
+// They are not secrets. Security is provided by:
+// - Backend token validation via API Gateway Authorizer
+// - Cognito OAuth flows (no client secret used for public clients)
+// - Proper CORS configuration
+// See: https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-client-apps.html
 Amplify.configure({
   Auth: {
     Cognito: {
-      userPoolId: 'us-east-2_PwJiIoMUP',
-      userPoolClientId: '6tcku9kavi4tuml59b7q0t1bgr',
+      userPoolId: process.env.REACT_APP_COGNITO_USER_POOL_ID || 'us-east-2_PwJiIoMUP',
+      userPoolClientId: process.env.REACT_APP_COGNITO_USER_POOL_CLIENT_ID || '6tcku9kavi4tuml59b7q0t1bgr',
       loginWith: {
         oauth: {
-          domain: 'us-east-2pwjiiomup.auth.us-east-2.amazoncognito.com',
+          domain: process.env.REACT_APP_COGNITO_DOMAIN || 'us-east-2pwjiiomup.auth.us-east-2.amazoncognito.com',
           scopes: ['openid', 'email', 'profile'],
           redirectSignIn: [currentUrl],
           redirectSignOut: [currentUrl],
@@ -75,15 +82,14 @@ function AppContent({ signOut, user }) {
               return;
             }
           } catch (e) {
-            console.warn('Could not parse ID token:', e);
+            // Silently handle token parsing errors
           }
         }
         
         // Fallback to other identifiers
         setUserEmail(user.signInDetails?.loginId || user.username);
       } catch (error) {
-        console.warn('Could not fetch email from session:', error);
-        // Fallback to other identifiers
+        // Silently handle session fetch errors and fallback to other identifiers
         setUserEmail(user.signInDetails?.loginId || user.username);
       }
     };

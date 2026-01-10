@@ -25,28 +25,14 @@ function Dashboard() {
       try {
         // 1. Get the current session
         const session = await fetchAuthSession();
-        console.log("Session fetched:", session);
         
         // 2. Extract the ID Token (this is the "key" for the authorizer)
         // Verify we're using ID Token (contains email claim), not Access Token
         const idToken = session.tokens.idToken;
         const token = idToken.toString();
         setAuthToken(token); // Store token for later use
-        
-        // Debug: Log token info (first 50 chars only for security)
-        console.log("ID Token (first 50 chars):", token.substring(0, 50) + "...");
-        console.log("Token type check - ID Token exists:", !!idToken);
-        
-        // Verify token contains email claim
-        try {
-          const tokenPayload = JSON.parse(atob(token.split('.')[1]));
-          console.log("Token payload (email claim):", tokenPayload.email || tokenPayload['cognito:username']);
-        } catch (e) {
-          console.warn("Could not parse token payload:", e);
-        }
 
         const API_URL = process.env.REACT_APP_API_URL;
-        console.log("API URL:", API_URL);
 
         const response = await fetch(API_URL, {
           method: 'GET',
@@ -57,22 +43,24 @@ function Dashboard() {
           }
         });
 
-        console.log("Response status:", response.status);
-        console.log("Response headers:", Object.fromEntries(response.headers.entries()));
-
         if (!response.ok) {
-          const errorText = await response.text();
-          console.error("API Error Response:", errorText);
-          throw new Error(`API Error: ${response.status} ${response.statusText} - ${errorText}`);
+          // Sanitize error message - don't expose full error details
+          let sanitizedError = 'Failed to fetch subscriptions';
+          if (response.status === 401) {
+            sanitizedError = 'Authentication failed. Please sign in again.';
+          } else if (response.status === 403) {
+            sanitizedError = 'Access denied. Please check your permissions.';
+          } else if (response.status >= 500) {
+            sanitizedError = 'Server error. Please try again later.';
+          }
+          throw new Error(sanitizedError);
         }
         
         const data = await response.json();
-        console.log("Raw response data:", data);
         
         // Check if response contains an error (even with 200 status)
         if (data.error || data.statusCode === 401) {
-          console.error("Error in response body:", data);
-          throw new Error(data.error || "Unauthorized: No email found in Authorizer context");
+          throw new Error(data.error || 'Authentication failed. Please sign in again.');
         }
         
         // LAYER 1: Handle API Gateway double-encoding
@@ -87,14 +75,13 @@ function Dashboard() {
 
         // LAYER 3: Force it to be an array or an empty list
         const finalArray = Array.isArray(bodyData) ? bodyData : [];
-        console.log("Final subscriptions array:", finalArray);
         
         setSubs(finalArray);
         setLoading(false);
       } catch (err) {
-        console.error("Fetch failed - Full error:", err);
-        console.error("Error stack:", err.stack);
-        setError(err.message);
+        // Sanitize error message - don't expose internal error details
+        const sanitizedMessage = err.message || 'An unexpected error occurred. Please try again.';
+        setError(sanitizedMessage);
         setLoading(false);
       }
     };
@@ -138,24 +125,38 @@ function Dashboard() {
       });
 
       if (!response.ok) {
-        let errorMessage = `Failed to update subscription (${response.status})`;
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.error || errorData.message || JSON.stringify(errorData);
-        } catch {
-          const errorText = await response.text();
-          errorMessage = errorText || errorMessage;
+        // Sanitize error message - don't expose full error details
+        let errorMessage = 'Failed to update subscription';
+        if (response.status === 401) {
+          errorMessage = 'Authentication failed. Please sign in again.';
+        } else if (response.status === 403) {
+          errorMessage = 'Access denied. Please check your permissions.';
+        } else if (response.status === 404) {
+          errorMessage = 'Subscription not found.';
+        } else if (response.status >= 500) {
+          errorMessage = 'Server error. Please try again later.';
+        } else {
+          // For 4xx errors, try to get a sanitized message
+          try {
+            const errorData = await response.json();
+            // Only use the error message if it's a simple string, don't expose full objects
+            if (typeof errorData.error === 'string') {
+              errorMessage = errorData.error;
+            } else if (typeof errorData.message === 'string') {
+              errorMessage = errorData.message;
+            }
+          } catch {
+            // If parsing fails, use default message
+          }
         }
-        console.error('Failed to update subscription:', response.status, errorMessage);
-        console.error('Request payload:', JSON.stringify(updatedData, null, 2));
         throw new Error(errorMessage);
       }
     } catch (err) {
       // Network error or API not configured for updates
       // Changes are still applied locally for better UX
-      console.warn('Could not save to API. Changes are local only:', err);
-      // Re-throw to show error in UI
-      throw err;
+      // Re-throw sanitized error to show in UI
+      const sanitizedMessage = err.message || 'Could not save to API. Changes are local only.';
+      throw new Error(sanitizedMessage);
     }
   };
 
@@ -173,16 +174,30 @@ function Dashboard() {
       });
 
       if (!response.ok) {
-        let errorMessage = `Failed to add subscription (${response.status})`;
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.error || errorData.message || JSON.stringify(errorData);
-        } catch {
-          const errorText = await response.text();
-          errorMessage = errorText || errorMessage;
+        // Sanitize error message - don't expose full error details
+        let errorMessage = 'Failed to add subscription';
+        if (response.status === 401) {
+          errorMessage = 'Authentication failed. Please sign in again.';
+        } else if (response.status === 403) {
+          errorMessage = 'Access denied. Please check your permissions.';
+        } else if (response.status === 400) {
+          errorMessage = 'Invalid subscription data. Please check your inputs.';
+        } else if (response.status >= 500) {
+          errorMessage = 'Server error. Please try again later.';
+        } else {
+          // For other 4xx errors, try to get a sanitized message
+          try {
+            const errorData = await response.json();
+            // Only use the error message if it's a simple string, don't expose full objects
+            if (typeof errorData.error === 'string') {
+              errorMessage = errorData.error;
+            } else if (typeof errorData.message === 'string') {
+              errorMessage = errorData.message;
+            }
+          } catch {
+            // If parsing fails, use default message
+          }
         }
-        console.error('Failed to add subscription:', response.status, errorMessage);
-        console.error('Request payload:', JSON.stringify(newSubscription, null, 2));
         throw new Error(errorMessage);
       }
 
@@ -212,8 +227,9 @@ function Dashboard() {
       // Add the new subscription to local state
       setSubs(prevSubs => [...prevSubs, subscriptionData]);
     } catch (err) {
-      console.error('Error adding subscription:', err);
-      throw err;
+      // Re-throw sanitized error
+      const sanitizedMessage = err.message || 'Failed to add subscription. Please try again.';
+      throw new Error(sanitizedMessage);
     }
   };
 

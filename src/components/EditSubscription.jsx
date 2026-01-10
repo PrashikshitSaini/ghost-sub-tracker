@@ -83,8 +83,7 @@ function EditSubscription({ open, onOpenChange, subscription, onSave, token }) {
       // Close dialog on success
       onOpenChange(false);
     } catch (err) {
-      console.error('Error updating subscription:', err);
-      // Show backend error message to user
+      // Show sanitized error message to user
       const errorMessage = err.message || 'Failed to update subscription';
       setError(errorMessage);
       // Don't close dialog so user can see the error and try again

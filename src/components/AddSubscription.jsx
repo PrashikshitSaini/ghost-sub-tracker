@@ -72,7 +72,6 @@ function AddSubscription({ open, onOpenChange, onSave, token }) {
       });
       onOpenChange(false);
     } catch (err) {
-      console.error('Error adding subscription:', err);
       setError(err.message || 'Failed to add subscription');
     } finally {
       setLoading(false);
