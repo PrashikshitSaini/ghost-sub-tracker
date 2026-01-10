@@ -52,17 +52,17 @@
   }
 }
 
-/* Amplify UI Dark Theme Overrides */
+/* Amplify UI Dark Theme Overrides - Matching shadcn UI Style with Better Contrast */
 [data-amplify-authenticator] {
-  --amplify-colors-background-primary: hsl(240 10% 3.9%);
-  --amplify-colors-background-secondary: hsl(240 10% 3.9%);
-  --amplify-colors-border-primary: hsl(240 3.7% 15.9%);
-  --amplify-colors-border-secondary: hsl(240 3.7% 15.9%);
+  --amplify-colors-background-primary: hsl(0 0% 0%);
+  --amplify-colors-background-secondary: hsl(0 0% 8%);
+  --amplify-colors-border-primary: hsl(0 0% 14.9%);
+  --amplify-colors-border-secondary: hsl(0 0% 14.9%);
   --amplify-colors-font-primary: hsl(0 0% 98%);
-  --amplify-colors-font-secondary: hsl(240 5% 64.9%);
+  --amplify-colors-font-secondary: hsl(0 0% 63.9%);
   --amplify-colors-brand-primary-80: hsl(0 0% 98%);
   --amplify-colors-brand-primary-60: hsl(0 0% 98%);
-  --amplify-colors-brand-primary-40: hsl(240 5% 64.9%);
+  --amplify-colors-brand-primary-40: hsl(0 0% 63.9%);
   --amplify-colors-font-interactive: hsl(0 0% 98%);
   --amplify-radii-small: 0.5rem;
   --amplify-radii-medium: 0.5rem;
@@ -73,12 +73,12 @@
 }
 
 [data-amplify-authenticator] {
-  background-color: hsl(240 10% 3.9%) !important;
+  background-color: hsl(0 0% 0%) !important;
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  padding: 1.5rem;
 }
 
 [data-amplify-authenticator] [data-amplify-container] {
@@ -87,11 +87,13 @@
   width: 100%;
 }
 
+/* Main form container - Card style with lighter background for visibility */
 [data-amplify-authenticator] [data-amplify-form] {
-  background-color: hsl(240 10% 3.9%) !important;
-  border: none !important;
-  border-radius: 0.5rem;
+  background-color: hsl(0 0% 8%) !important;
+  border: 1px solid hsl(0 0% 14.9%) !important;
+  border-radius: calc(var(--radius) + 4px) !important;
   padding: 2rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
 }
 
 /* Remove any white backgrounds from Amplify components */
@@ -107,13 +109,11 @@
   background: transparent !important;
 }
 
-/* Force dark background on form and its direct children containers */
-[data-amplify-authenticator] [data-amplify-form] {
-  background-color: hsl(240 10% 3.9%) !important;
-}
-
+/* Form Section Background */
 [data-amplify-authenticator] [data-amplify-form] > div:not([data-amplify-field]):not([data-amplify-tabs]):not([data-amplify-header]) {
-  background-color: hsl(240 10% 3.9%) !important;
+  background-color: transparent !important;
+  padding: 0;
+  margin-top: 0;
 }
 
 /* Header */
@@ -131,35 +131,39 @@
 }
 
 [data-amplify-authenticator] [data-amplify-header] p {
-  color: hsl(0 0% 98%) !important;
+  color: hsl(0 0% 63.9%) !important;
   font-size: 0.875rem;
-  opacity: 0.8;
 }
 
-/* Tabs */
+/* Tabs - Modern style with better contrast */
 [data-amplify-authenticator] [data-amplify-tabs] {
-  border-bottom: 1px solid hsl(240 3.7% 15.9%);
+  border-bottom: 1px solid hsl(0 0% 14.9%);
   margin-bottom: 1.5rem;
   padding-bottom: 0;
+  display: flex;
+  gap: 0;
 }
 
 [data-amplify-authenticator] [data-amplify-tab] {
-  color: hsl(240 5% 64.9%) !important;
+  color: hsl(0 0% 63.9%) !important;
   border-bottom: 2px solid transparent;
   padding: 0.75rem 1.25rem;
   font-weight: 500;
   font-size: 0.875rem;
   transition: all 0.2s;
   background: none !important;
+  border-radius: 0.5rem 0.5rem 0 0;
 }
 
 [data-amplify-authenticator] [data-amplify-tab][data-state="active"] {
   color: hsl(0 0% 98%) !important;
   border-bottom-color: hsl(0 0% 98%);
+  background-color: transparent !important;
 }
 
 [data-amplify-authenticator] [data-amplify-tab]:hover {
   color: hsl(0 0% 98%) !important;
+  background-color: hsl(0 0% 14.9% / 0.3) !important;
 }
 
 /* Labels */
@@ -171,74 +175,135 @@
   display: block;
 }
 
-/* Form Section Background */
-[data-amplify-authenticator] [data-amplify-form] > div:not([data-amplify-tabs]):not([data-amplify-header]) {
-  background-color: transparent !important;
-  padding: 0;
-  margin-top: 0;
-}
-
-[data-amplify-authenticator] [data-amplify-form] [data-amplify-field] {
+/* Form Field Container */
+[data-amplify-authenticator] [data-amplify-field] {
   margin-bottom: 1.25rem;
 }
 
-/* Input Fields - Dark with visible borders */
+/* Input Fields - shadcn style with visible background */
 [data-amplify-authenticator] input[type="text"],
 [data-amplify-authenticator] input[type="email"],
 [data-amplify-authenticator] input[type="username"],
 [data-amplify-authenticator] input[type="password"] {
-  background-color: hsl(240 10% 3.9%) !important;
-  border: 1px solid hsl(240 3.7% 15.9%) !important;
-  border-radius: 0.5rem;
+  background-color: hsl(0 0% 3%) !important;
+  border: 1px solid hsl(0 0% 14.9%) !important;
+  border-radius: 0.5rem !important;
   color: hsl(0 0% 98%) !important;
-  padding: 0.75rem;
+  padding: 0.625rem 0.75rem !important;
   width: 100%;
   font-size: 0.875rem;
   transition: all 0.2s;
 }
 
 [data-amplify-authenticator] input:hover {
-  border-color: hsl(240 3.7% 25%) !important;
+  border-color: hsl(0 0% 20%) !important;
 }
 
 [data-amplify-authenticator] input:focus {
-  outline: none;
-  border-color: hsl(240 4.9% 83.9%) !important;
-  box-shadow: 0 0 0 2px hsl(240 4.9% 83.9% / 0.2);
+  outline: none !important;
+  border-color: hsl(0 0% 83.1%) !important;
+  box-shadow: 0 0 0 2px hsl(0 0% 83.1% / 0.2) !important;
 }
 
 [data-amplify-authenticator] input::placeholder {
-  color: hsl(240 5% 64.9%) !important;
+  color: hsl(0 0% 63.9%) !important;
+  opacity: 1;
 }
 
 /* Password Toggle Button */
 [data-amplify-authenticator] button[data-amplify-password-toggle] {
   background-color: transparent !important;
-  border: 1px solid hsl(240 3.7% 15.9%) !important;
-  border-radius: 0.25rem;
+  border: 1px solid hsl(0 0% 14.9%) !important;
+  border-left: none !important;
+  border-radius: 0 0.5rem 0.5rem 0 !important;
   color: hsl(0 0% 98%) !important;
-  padding: 0.5rem;
+  padding: 0.625rem 0.75rem !important;
   width: 2.5rem;
-  height: 2.5rem;
+  height: auto;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.2s;
 }
 
 [data-amplify-authenticator] button[data-amplify-password-toggle]:hover {
-  background-color: hsl(240 3.7% 15.9%) !important;
-  border-color: hsl(240 3.7% 20%) !important;
+  background-color: hsl(0 0% 14.9%) !important;
+  color: hsl(0 0% 98%) !important;
 }
 
-/* Submit Buttons - Light gray/white with dark text */
-[data-amplify-authenticator] button[type="submit"],
-[data-amplify-authenticator] [data-amplify-button][type="submit"],
-[data-amplify-authenticator] [data-amplify-button] {
-  background-color: hsl(240 3.7% 15.9%) !important;
+/* Google Sign-in Button - Much more visible with lighter background */
+[data-amplify-authenticator] [data-amplify-button][aria-label*="Google"],
+[data-amplify-authenticator] button[data-amplify-button][aria-label*="Google"],
+[data-amplify-authenticator] [data-amplify-button]:has([aria-label*="Google"]),
+[data-amplify-authenticator] [data-amplify-button][aria-label*="google"],
+[data-amplify-authenticator] [data-amplify-button][class*="social"],
+[data-amplify-authenticator] [role="group"] [data-amplify-button],
+[data-amplify-authenticator] [data-amplify-button][data-variation="default"]:first-of-type,
+[data-amplify-authenticator] [data-amplify-button]:not([type="submit"]):not([data-amplify-password-toggle]):first-of-type {
+  background-color: hsl(0 0% 14.9%) !important;
+  border: 1px solid hsl(0 0% 20%) !important;
+  border-radius: 0.5rem !important;
   color: hsl(0 0% 98%) !important;
-  border: 1px solid hsl(240 3.7% 15.9%) !important;
-  border-radius: 0.5rem;
-  padding: 0.75rem 1.5rem;
+  padding: 0.625rem 1rem !important;
+  width: 100%;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 1.5rem;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+[data-amplify-authenticator] [data-amplify-button][aria-label*="Google"]:hover,
+[data-amplify-authenticator] button[data-amplify-button][aria-label*="Google"]:hover,
+[data-amplify-authenticator] [data-amplify-button]:has([aria-label*="Google"]):hover,
+[data-amplify-authenticator] [data-amplify-button][aria-label*="google"]:hover,
+[data-amplify-authenticator] [data-amplify-button][class*="social"]:hover,
+[data-amplify-authenticator] [role="group"] [data-amplify-button]:hover,
+[data-amplify-authenticator] [data-amplify-button][data-variation="default"]:first-of-type:hover,
+[data-amplify-authenticator] [data-amplify-button]:not([type="submit"]):not([data-amplify-password-toggle]):first-of-type:hover {
+  background-color: hsl(0 0% 20%) !important;
+  border-color: hsl(0 0% 30%) !important;
+}
+
+/* Catch-all for social provider buttons - make them all visible */
+[data-amplify-authenticator] [data-amplify-form] [role="group"] button,
+[data-amplify-authenticator] [data-amplify-form] [role="group"] [data-amplify-button] {
+  background-color: hsl(0 0% 14.9%) !important;
+  border: 1px solid hsl(0 0% 20%) !important;
+  border-radius: 0.5rem !important;
+  color: hsl(0 0% 98%) !important;
+  padding: 0.625rem 1rem !important;
+  width: 100%;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 1.5rem;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+[data-amplify-authenticator] [data-amplify-form] [role="group"] button:hover,
+[data-amplify-authenticator] [data-amplify-form] [role="group"] [data-amplify-button]:hover {
+  background-color: hsl(0 0% 20%) !important;
+  border-color: hsl(0 0% 30%) !important;
+}
+
+/* Submit Buttons - Primary style matching shadcn */
+[data-amplify-authenticator] button[type="submit"]:not([data-amplify-button][aria-label*="Google"]),
+[data-amplify-authenticator] [data-amplify-button][type="submit"]:not([aria-label*="Google"]),
+[data-amplify-authenticator] [data-amplify-button][type="submit"] {
+  background-color: hsl(0 0% 98%) !important;
+  color: hsl(0 0% 9%) !important;
+  border: 1px solid hsl(0 0% 98%) !important;
+  border-radius: 0.5rem !important;
+  padding: 0.625rem 1rem !important;
   width: 100%;
   font-weight: 500;
   font-size: 0.875rem;
@@ -247,62 +312,70 @@
   margin-top: 1rem;
 }
 
-[data-amplify-authenticator] button[type="submit"]:hover,
-[data-amplify-authenticator] [data-amplify-button][type="submit"]:hover,
-[data-amplify-authenticator] [data-amplify-button]:hover {
-  background-color: hsl(240 3.7% 20%) !important;
-  border-color: hsl(240 3.7% 20%) !important;
+[data-amplify-authenticator] button[type="submit"]:hover:not([data-amplify-button][aria-label*="Google"]),
+[data-amplify-authenticator] [data-amplify-button][type="submit"]:hover:not([aria-label*="Google"]),
+[data-amplify-authenticator] [data-amplify-button]:hover:not([aria-label*="Google"]):not([data-amplify-password-toggle]) {
+  background-color: hsl(0 0% 90%) !important;
+  border-color: hsl(0 0% 90%) !important;
 }
 
-[data-amplify-authenticator] button[type="submit"]:active,
-[data-amplify-authenticator] [data-amplify-button][type="submit"]:active,
-[data-amplify-authenticator] [data-amplify-button]:active {
-  background-color: hsl(240 3.7% 25%) !important;
+[data-amplify-authenticator] button[type="submit"]:active:not([data-amplify-button][aria-label*="Google"]),
+[data-amplify-authenticator] [data-amplify-button][type="submit"]:active:not([aria-label*="Google"]) {
+  background-color: hsl(0 0% 85%) !important;
 }
 
-/* Primary action button - dark gray with white text */
-[data-amplify-authenticator] [data-amplify-button][data-variation="primary"] {
-  background-color: hsl(240 3.7% 15.9%) !important;
-  color: hsl(0 0% 98%) !important;
-  border: 1px solid hsl(240 3.7% 15.9%) !important;
+/* Primary action button */
+[data-amplify-authenticator] [data-amplify-button][data-variation="primary"]:not([aria-label*="Google"]) {
+  background-color: hsl(0 0% 98%) !important;
+  color: hsl(0 0% 9%) !important;
+  border: 1px solid hsl(0 0% 98%) !important;
 }
 
-[data-amplify-authenticator] [data-amplify-button][data-variation="primary"]:hover {
-  background-color: hsl(240 3.7% 20%) !important;
-  border-color: hsl(240 3.7% 20%) !important;
+[data-amplify-authenticator] [data-amplify-button][data-variation="primary"]:hover:not([aria-label*="Google"]) {
+  background-color: hsl(0 0% 90%) !important;
+  border-color: hsl(0 0% 90%) !important;
 }
 
 /* Links */
 [data-amplify-authenticator] a {
-  color: hsl(0 0% 98%) !important;
+  color: hsl(0 0% 83.1%) !important;
   text-decoration: none;
   font-size: 0.875rem;
-  opacity: 0.8;
+  transition: color 0.2s;
 }
 
 [data-amplify-authenticator] a:hover {
   color: hsl(0 0% 98%) !important;
   text-decoration: underline;
-  opacity: 1;
 }
 
 /* Error Messages */
 [data-amplify-authenticator] [data-amplify-alert] {
-  background-color: hsl(0 62.8% 30.6% / 0.2) !important;
+  background-color: hsl(0 62.8% 30.6% / 0.15) !important;
   border: 1px solid hsl(0 62.8% 30.6%) !important;
-  border-radius: 0.5rem;
+  border-radius: 0.5rem !important;
   color: hsl(0 0% 98%) !important;
-  padding: 0.75rem;
+  padding: 0.75rem 1rem !important;
   margin-bottom: 1rem;
-}
-
-/* Form Field Container */
-[data-amplify-authenticator] [data-amplify-field] {
-  margin-bottom: 1.25rem;
+  font-size: 0.875rem;
 }
 
 /* Divider */
-[data-amplify-authenticator] [data-amplify-divider] {
+[data-amplify-authenticator] [data-amplify-divider],
+[data-amplify-authenticator] .amplify-divider {
   border-color: hsl(0 0% 14.9%) !important;
   color: hsl(0 0% 63.9%) !important;
+  margin: 1.5rem 0 !important;
+}
+
+[data-amplify-authenticator] [data-amplify-divider]::before,
+[data-amplify-authenticator] [data-amplify-divider]::after,
+[data-amplify-authenticator] .amplify-divider::before,
+[data-amplify-authenticator] .amplify-divider::after {
+  border-color: hsl(0 0% 14.9%) !important;
+}
+
+/* Social provider buttons container */
+[data-amplify-authenticator] [data-amplify-form] > [role="group"] {
+  margin-bottom: 1.5rem;
 }

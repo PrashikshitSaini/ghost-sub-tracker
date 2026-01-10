@@ -10,8 +10,10 @@ import {
 } from './ui/dialog';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
+import { useCurrency } from '../contexts/CurrencyContext';
 
 function AddSubscription({ open, onOpenChange, onSave, token }) {
+  const { getCurrencySymbol } = useCurrency();
   const [formData, setFormData] = useState({
     merchant: '',
     cost: '',
@@ -120,7 +122,7 @@ function AddSubscription({ open, onOpenChange, onSave, token }) {
 
             <div>
               <label htmlFor="cost" className="block text-sm font-medium mb-1">
-                Monthly Cost ($) <span className="text-destructive">*</span>
+                Monthly Cost ({getCurrencySymbol()}) <span className="text-destructive">*</span>
               </label>
               <input
                 type="number"

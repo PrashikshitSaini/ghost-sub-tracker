@@ -8,6 +8,7 @@ import { Skeleton } from './ui/skeleton';
 import SetupWizard from './SetupWizard';
 import EditSubscription from './EditSubscription';
 import AddSubscription from './AddSubscription';
+import { useCurrency } from '../contexts/CurrencyContext';
 
 function Dashboard() {
   const [subs, setSubs] = useState([]);
@@ -17,6 +18,7 @@ function Dashboard() {
   const [editingSub, setEditingSub] = useState(null);
   const [addingSub, setAddingSub] = useState(false);
   const [authToken, setAuthToken] = useState(null);
+  const { formatCurrency } = useCurrency();
 
   useEffect(() => {
     const fetchSubscriptions = async () => {
@@ -245,11 +247,16 @@ function Dashboard() {
       <div className="container mx-auto px-4 sm:px-6 py-8 max-w-7xl">
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6">
-            <div className="space-y-1">
-              <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">Ghost Sub Tracker</h1>
-              <p className="text-muted-foreground text-sm">
-                Real-time surveillance of your subscriptions
-              </p>
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full border-2 border-foreground/20 shadow-lg flex-shrink-0 overflow-hidden bg-white/5 backdrop-blur-sm">
+                <img src="/favicon-512.png" alt="Ghost Sub Tracker" className="w-full h-full object-cover scale-110" />
+              </div>
+              <div className="space-y-1">
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Ghost Sub Tracker</h1>
+                <p className="text-muted-foreground text-sm">
+                  Real-time surveillance of your subscriptions
+                </p>
+              </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
               <Button 
@@ -279,7 +286,7 @@ function Dashboard() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">${totalSpend.toFixed(2)}</div>
+                  <div className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">{formatCurrency(totalSpend)}</div>
                 </CardContent>
               </Card>
             </div>
@@ -339,7 +346,7 @@ function Dashboard() {
                     {subs.map((sub, index) => (
                       <TableRow key={sub.original_msg_id || index} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
                         <TableCell className="px-6 py-4 font-medium">{sub.merchant || sub.sub_name || "Unknown"}</TableCell>
-                        <TableCell className="px-6 py-4 font-mono text-right">${parseFloat(sub.cost || 0).toFixed(2)}</TableCell>
+                        <TableCell className="px-6 py-4 font-mono text-right">{formatCurrency(sub.cost || 0)}</TableCell>
                         <TableCell className="px-6 py-4 text-muted-foreground">{sub.renewal_date || "N/A"}</TableCell>
                         <TableCell className="px-6 py-4 text-right">
                           <Badge 
