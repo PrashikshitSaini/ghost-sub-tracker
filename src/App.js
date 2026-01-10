@@ -7,6 +7,12 @@ import Dashboard from './components/Dashboard';
 import { Button } from './components/ui/button';
 import { useCurrency } from './contexts/CurrencyContext';
 
+// Check if we are on localhost or Vercel
+const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const currentUrl = isLocalhost 
+  ? 'http://localhost:3000/' 
+  : 'https://ghost-sub-tracker.vercel.app/';
+
 Amplify.configure({
   Auth: {
     Cognito: {
@@ -16,8 +22,8 @@ Amplify.configure({
         oauth: {
           domain: 'us-east-2pwjiiomup.auth.us-east-2.amazoncognito.com',
           scopes: ['openid', 'email', 'profile'],
-          redirectSignIn: ['http://localhost:3000/'],
-          redirectSignOut: ['http://localhost:3000/'],
+          redirectSignIn: [currentUrl],
+          redirectSignOut: [currentUrl],
           responseType: 'code'
         }
       }
