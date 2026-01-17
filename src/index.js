@@ -1,5 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+// Import Amplify styles FIRST, then our custom styles to override them
+import '@aws-amplify/ui-react/styles.css';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';

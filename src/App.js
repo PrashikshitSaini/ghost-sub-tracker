@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Amplify } from 'aws-amplify';
 import { Authenticator } from '@aws-amplify/ui-react';
 import { fetchAuthSession } from 'aws-amplify/auth';
-import '@aws-amplify/ui-react/styles.css';
+// Note: Amplify styles are imported in index.js BEFORE our custom CSS
 import Dashboard from './components/Dashboard';
 import { Button } from './components/ui/button';
 import { useCurrency } from './contexts/CurrencyContext';
+import WelcomeAlert from './components/WelcomeAlert';
+import AnimatedBackground from './components/AnimatedBackground';
 
 // Check if we are on localhost or Vercel
 const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
@@ -59,6 +61,7 @@ const components = {
 function AppContent({ signOut, user }) {
   const { currency, setCurrency, currencies } = useCurrency();
   const [userEmail, setUserEmail] = useState(user.attributes?.email || user.signInDetails?.loginId || user.username);
+  const [showWelcomeAlert, setShowWelcomeAlert] = useState(false);
   
   // Extract email from ID token for OAuth users
   useEffect(() => {
@@ -97,8 +100,35 @@ function AppContent({ signOut, user }) {
     getEmailFromSession();
   }, [user]);
 
+  // Check if user has seen the welcome alert (one-time only)
+  useEffect(() => {
+    // Use a unique identifier for the user (email or username)
+    const userIdentifier = userEmail || user.username || user.userId || 'anonymous';
+    const alertKey = `welcome_alert_seen_${userIdentifier}`;
+    
+    // Check if user has already seen the alert
+    const hasSeenAlert = localStorage.getItem(alertKey);
+    
+    if (!hasSeenAlert) {
+      // Show the alert after a short delay for better UX
+      const timer = setTimeout(() => {
+        setShowWelcomeAlert(true);
+      }, 500);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [userEmail, user]);
+
+  // Mark alert as seen when user closes it
+  const handleCloseWelcomeAlert = () => {
+    const userIdentifier = userEmail || user.username || user.userId || 'anonymous';
+    const alertKey = `welcome_alert_seen_${userIdentifier}`;
+    localStorage.setItem(alertKey, 'true');
+    setShowWelcomeAlert(false);
+  };
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-black relative z-10">
       <div className="container mx-auto px-4 sm:px-6 py-4 max-w-7xl">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-3">
@@ -118,7 +148,7 @@ function AppContent({ signOut, user }) {
                 id="currency-select"
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
-                className="px-3 py-1.5 text-sm border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                className="px-3 py-1.5 text-sm border rounded-md bg-black text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               >
                 {Object.entries(currencies).map(([code, info]) => (
                   <option key={code} value={code}>
@@ -134,17 +164,21 @@ function AppContent({ signOut, user }) {
         </div>
       </div>
       <Dashboard />
+      <WelcomeAlert open={showWelcomeAlert} onOpenChange={handleCloseWelcomeAlert} />
     </div>
   );
 }
 
 function App() {
   return (
-    <Authenticator components={components} socialProviders={['google']}>
-      {({ signOut, user }) => (
-        <AppContent signOut={signOut} user={user} />
-      )}
-    </Authenticator>
+    <>
+      <AnimatedBackground />
+      <Authenticator components={components} socialProviders={['google']}>
+        {({ signOut, user }) => (
+          <AppContent signOut={signOut} user={user} />
+        )}
+      </Authenticator>
+    </>
   );
 }
 
