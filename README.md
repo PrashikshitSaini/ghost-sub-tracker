@@ -1,13 +1,14 @@
 <div align="center">
   <img src="logo.png" alt="Ghost Sub Tracker Logo" width="200" />
 
-  # Ghost Sub Tracker
+# Ghost Sub Tracker
 
   **Real-time surveillance of your subscriptions**
 
   [![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://ghost-sub-tracker.vercel.app/)
   [![React](https://img.shields.io/badge/React-19.2-blue)](https://reactjs.org/)
   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 </div>
 
 ---
@@ -19,6 +20,7 @@ Ghost Sub Tracker is a modern web application that helps you take control of you
 Whether you're tracking Netflix, Spotify, gym memberships, or any other recurring payment, Ghost Sub Tracker gives you a centralized place to monitor everything at a glance.
 
 **Perfect for:**
+
 - Individuals managing multiple subscription services
 - Families tracking shared subscriptions
 - Anyone looking to optimize their monthly spending
@@ -51,9 +53,48 @@ Sign up with your Google account or create a new account to start tracking your 
 
 # Developer Documentation
 
+## Architecture Diagram
+
+```mermaid
+graph TD
+    %% --- Styling ---
+    classDef user fill:#E1F5FE,stroke:#01579B,stroke-width:2px,color:#01579B;
+    classDef frontend fill:#FFF9C4,stroke:#FBC02D,stroke-width:2px,color:#F57F17;
+    classDef auth fill:#E8EAF6,stroke:#3F51B5,stroke-width:2px,color:#283593;
+    classDef api fill:#F3E5F5,stroke:#8E24AA,stroke-width:2px,color:#4A148C;
+    classDef compute fill:#E0F7FA,stroke:#0097A7,stroke-width:2px,color:#006064;
+    classDef database fill:#E8F5E9,stroke:#388E3C,stroke-width:2px,color:#1B5E20;
+    classDef ai fill:#FBE9E7,stroke:#D84315,stroke-width:2px,color:#BF360C;
+    classDef email fill:#ECEFF1,stroke:#546E7A,stroke-width:2px,color:#37474F;
+    classDef storage fill:#F1F8E9,stroke:#689F38,stroke-width:2px,color:#33691E;
+
+    %% --- Nodes ---
+    User(("User")):::user
+    AmplifyApp("React App (Amplify)"):::frontend
+    Cognito("Amazon Cognito"):::auth
+    APIGateway("API Gateway"):::api
+    Lambda("AWS Lambda"):::compute
+    DynamoDB[("Amazon DynamoDB")]:::database
+    Bedrock("Amazon Bedrock (Claude)"):::ai
+    SES("Amazon SES"):::email
+    S3Bucket[("S3 Bucket")]:::storage
+
+    %% --- Flow ---
+    User -- Access App --> AmplifyApp
+    AmplifyApp -- Authenticate --> Cognito
+    AmplifyApp -- API Calls (Auth Token) --> APIGateway
+    APIGateway -- Trigger --> Lambda
+    Lambda -- Read/Write --> DynamoDB
+    Lambda -- Invoke Model --> Bedrock
+    User -- Forward Email --> SES
+    SES -- Store Email --> S3Bucket
+    S3Bucket -- Trigger --> Lambda
+```
+
 ## Tech Stack
 
 **Frontend:**
+
 - React 19.2.3
 - React Scripts 5.0.1 (Create React App)
 - Tailwind CSS 3.4.0
@@ -61,23 +102,27 @@ Sign up with your Google account or create a new account to start tracking your 
 - Lucide React (icons)
 
 **Authentication & Backend:**
+
 - AWS Amplify 6.15.9
 - AWS Amplify UI React 6.13.2
 - AWS Cognito (OAuth with Google)
 - API Gateway (REST API)
 
 **Styling:**
+
 - Tailwind CSS with custom theme
 - Class Variance Authority (component variants)
 - Tailwind Merge & Tailwind CSS Animate
 
 **Deployment:**
+
 - Vercel (primary)
 - AWS Amplify Hosting (alternative)
 
 ## Prerequisites
 
 Before you begin, ensure you have the following installed:
+
 - Node.js (version 16.x or higher recommended)
 - npm or yarn package manager
 - AWS Account with Cognito User Pool configured
@@ -88,17 +133,20 @@ Before you begin, ensure you have the following installed:
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/[your-username]/ghost-sub-tracker.git
 cd ghost-sub-tracker
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Create a `.env` file in the root directory:
+
 ```env
 REACT_APP_API_URL=your_api_gateway_url_here
 REACT_APP_COGNITO_USER_POOL_ID=your_cognito_user_pool_id
@@ -109,6 +157,7 @@ REACT_APP_COGNITO_DOMAIN=your_cognito_domain
 **Note:** If environment variables are not provided, the app will use default values configured in `src/App.js` (suitable for the production deployment).
 
 4. Start the development server:
+
 ```bash
 npm start
 ```
@@ -120,15 +169,19 @@ The app will open at [http://localhost:3000](http://localhost:3000)
 In the project directory, you can run:
 
 #### `npm start`
+
 Runs the app in development mode. Open [http://localhost:3000](http://localhost:3000) to view it in your browser. The page will reload when you make changes.
 
 #### `npm test`
+
 Launches the test runner in interactive watch mode.
 
 #### `npm run build`
+
 Builds the app for production to the `build` folder. It correctly bundles React in production mode and optimizes the build for the best performance.
 
 #### `npm run eject`
+
 **Note: this is a one-way operation. Once you eject, you can't go back!**
 
 If you need full control over the build configuration, you can eject from Create React App.
@@ -219,11 +272,13 @@ The backend API should expose the following endpoints:
 - **PUT** `/subscriptions` - Update an existing subscription
 
 **Authentication:**
+
 - All requests must include the Cognito ID Token in the `Authorization` header
 - Configure a Lambda Authorizer in API Gateway to validate the ID Token
 - CORS must be enabled for your frontend domain
 
 **Expected Response Format:**
+
 ```json
 {
   "message": "Success",
@@ -274,4 +329,5 @@ To add a license file, create a `LICENSE` file in the root directory with the MI
   Made with ❤️ for better subscription management
 
   [Live Demo](https://ghost-sub-tracker.vercel.app/) • [Report Bug](https://github.com/[your-username]/ghost-sub-tracker/issues) • [Request Feature](https://github.com/[your-username]/ghost-sub-tracker/issues)
+
 </div>
